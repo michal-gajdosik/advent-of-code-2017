@@ -18,6 +18,24 @@
  * In this example, the spreadsheet's checksum would be 8 + 4 + 6 = 18.
  *
  * What is the checksum for the spreadsheet in your puzzle input?
+ *
+ * --- Part Two ---
+ *
+ * "Great work; looks like we're on the right track after all. Here's a star for your effort." However, the program seems a little worried. Can programs be worried?
+ *
+ * "Based on what we're seeing, it looks like all the User wanted is some information about the evenly divisible values in the spreadsheet. Unfortunately, none of us are equipped for that kind of calculation - most of us specialize in bitwise operations."
+ *
+ * It sounds like the goal is to find the only two numbers in each row where one evenly divides the other - that is, where the result of the division operation is a whole number. They would like you to find those numbers on each line, divide them, and add up each line's result.
+ *
+ * For example, given the following spreadsheet:
+ *
+ * 5 9 2 8
+ * 9 4 7 3
+ * 3 8 6 5
+ * In the first row, the only two numbers that evenly divide are 8 and 2; the result of this division is 4.
+ * In the second row, the two numbers are 9 and 3; the result is 3.
+ * In the third row, the result is 2.
+ * In this example, the sum of the results would be 4 + 3 + 2 = 9.
  */
 class CorruptionChecksum
 {
@@ -32,51 +50,49 @@ class CorruptionChecksum
         $this->input = new SplFileObject('../inputs/input_02.txt');
     }
 
-    public function getCorruptionChecksum(): int
+    /**
+     * @return int
+     */
+    public function getCorruptionChecksumPartOne(): int
     {
         $corruptionChecksum = 0;
 
         while (!$this->input->eof()) {
             $rowValues = preg_replace('/[\t]/', ' ', $this->input->fgets());
-            $rowValues = explode(' ', $rowValues);
+            $rowValues = array_map('intval', explode(' ', $rowValues));
 
-            $corruptionChecksum += $this->getMaxValue($rowValues) - $this->getMinValue($rowValues);
+            $corruptionChecksum += max($rowValues) - min($rowValues);
         }
 
         return $corruptionChecksum;
     }
 
     /**
-     * @param array $input
      * @return int
      */
-    private function getMinValue(array $input): int
+    public function getCorruptionChecksumPartTwo(): int
     {
-        $min = PHP_INT_MAX;
+        $sum = 0;
 
-        foreach ($input as $item => $value) {
-            if ($value < $min) {
-                $min = intval($value);
+        while (!$this->input->eof()) {
+            $rowValues = preg_replace('/[\t]/', ' ', $this->input->fgets());
+            $rowValues = array_map('intval', explode(' ', $rowValues));
+            rsort($rowValues);
+
+            foreach ($rowValues as $i => $value1) {
+                foreach ($rowValues as $j => $value2) {
+                    if (isset($rowValues[$j + $i + 1])) {
+                        $numerator = intval($rowValues[$i]);
+                        $denominator = intval($rowValues[$j + $i + 1]);
+
+                        if ($numerator % $denominator === 0) {
+                            $sum += $numerator / $denominator;
+                        }
+                    }
+                }
             }
         }
 
-        return $min;
-    }
-
-    /**
-     * @param array $input
-     * @return int
-     */
-    private function getMaxValue(array $input): int
-    {
-        $max = PHP_INT_MIN;
-
-        foreach ($input as $item => $value) {
-            if ($value > $max) {
-                $max = intval($value);
-            }
-        }
-
-        return $max;
+        return $sum;
     }
 }
