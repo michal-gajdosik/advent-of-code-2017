@@ -19,6 +19,20 @@
  * 1111 produces 4 because each digit (all 1) matches the next.
  * 1234 produces 0 because no digit matches the next.
  * 91212129 produces 9 because the only digit that matches the next one is the last digit, 9.
+ *
+ * --- Part Two ---
+ *
+ * You notice a progress bar that jumps to 50% completion. Apparently, the door isn't yet satisfied, but it did emit a star as encouragement. The instructions change:
+ *
+ * Now, instead of considering the next digit, it wants you to consider the digit halfway around the circular list. That is, if your list contains 10 items, only include a digit in your sum if the digit 10/2 = 5 steps forward matches it. Fortunately, your list has an even number of elements.
+ *
+ * For example:
+ *
+ * 1212 produces 6: the list contains 4 items, and all four digits match the digit 2 items ahead.
+ * 1221 produces 0, because every comparison is between a 1 and a 2.
+ * 123425 produces 4, because both 2s match each other, but no other digit has a match.
+ * 123123 produces 12.
+ * 12131415 produces 4.
  */
 class InverseCaptcha
 {
@@ -36,20 +50,40 @@ class InverseCaptcha
     /**
      * @return string
      */
-    public function getCaptchaSolution()
+    public function getCaptchaSolutionPartOne()
     {
-        $string = str_split($this->input);
-        $result = 0;
+        $digitsSequence = str_split($this->input);
 
-        foreach ($string as $index => $value) {
-            if (!next($string)) {
-                if ($value === $string[0]) {
+        $result = 0;
+        foreach ($digitsSequence as $index => $value) {
+            if (!next($digitsSequence)) {
+                if ($value === $digitsSequence[0]) {
                     $result += $value;
                 }
             } else {
-                if ($value === $string[$index + 1]) {
+                if ($value === $digitsSequence[$index + 1]) {
                     $result += $value;
                 }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCaptchaSolutionPartTwo()
+    {
+        $digitsSequence = str_split($this->input);
+        $digitsSequenceFirstHalf = array_slice($digitsSequence, 0, count($digitsSequence) / 2);
+        $digitsSequenceSecondHalf = array_slice($digitsSequence, count($digitsSequence) / 2);
+
+        $result = 0;
+        foreach ($digitsSequenceFirstHalf as $index => $value) {
+
+            if ($value === $digitsSequenceSecondHalf[$index]) {
+                $result += $value * 2;
             }
         }
 
